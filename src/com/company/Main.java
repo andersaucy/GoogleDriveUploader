@@ -1,7 +1,9 @@
 package com.company;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Scanner;
 
 public class Main {
 //Runs Java on a folder directory in the command line
@@ -17,24 +19,27 @@ public class Main {
         OsCheck.OSType ostype= OsCheck.getOperatingSystemType();
 
         File[] file_array = my_folder.listFiles();
+        assert file_array != null;
         Arrays.sort(file_array);
 
         System.out.println("There are " + file_array.length + " files. What is the order of pieces [separted by commas]");
         String order = in.nextLine();
         String[] pieces = order.split("\\s*,\\s*");
 
-        for (int i = 0; i < file_array.length; i++)
-        {
-            if (file_array[i].isFile())
-            {
+        for (int i = 0; i < file_array.length; i++) {
+            if (file_array[i].isFile()) {
                 String dash = "";
                 switch (ostype) {
                     case Windows:
                         dash = "\\";
+                        break;
                     case MacOS:
                         dash = "/";
-                    case Linux: break;
-                    case Other: break;
+                        break;
+                    case Linux:
+                        break;
+                    case Other:
+                        break;
                 }
                 File my_file = new File(my_folder +
                         dash + file_array[i].getName());
@@ -60,7 +65,7 @@ public class Main {
         };
 
         // cached result of OS detection
-        protected static OSType detectedOS;
+        static OSType detectedOS;
 
         /**
          * detect the operating system from the os.name System property and cache
@@ -68,7 +73,7 @@ public class Main {
          *
          * @returns - the operating system detected
          */
-        public static OSType getOperatingSystemType() {
+        static OSType getOperatingSystemType() {
             if (detectedOS == null) {
                 String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
                 if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
