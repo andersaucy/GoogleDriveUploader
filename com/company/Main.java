@@ -2,6 +2,7 @@ package com.company;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -13,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File my_folder = new File(args[0]);
         Scanner in = new Scanner(System.in);
-        System.out.println("What is the date of the rehearsal? Format : [Month-Date]");
+        System.out.println("What is the date of the rehearsal? Format: [Day-MonthDate]");
         String date = in.nextLine();
 
         OsCheck.OSType ostype= OsCheck.getOperatingSystemType();
@@ -21,35 +22,57 @@ public class Main {
         File[] file_array = my_folder.listFiles();
         assert file_array != null;
         Arrays.sort(file_array);
+                //, Comparator.comparingLong(File::lastModified));
 
-        System.out.println("There are " + file_array.length + " files. What is the order of pieces [separted by commas]");
-        String order = in.nextLine();
-        String[] pieces = order.split("\\s*,\\s*");
+        int vids = 0;
+        for (int v = 0; v<file_array.length; v++){
+            String ext = file_array[v].getName().substring(file_array[v].getName().indexOf(".") + 1);
+            if (ext.equalsIgnoreCase("mp4")){
+                vids += 1;
+            }
+        }
+        System.out.println("There are " + vids + " files. What is the order of pieces [separted by commas]");
+
+        String order;
+        String[] pieces;
+
+        order = in.nextLine();
+        pieces = order.split("\\s*,\\s*");
+    System.out.println(pieces[0]);
+        while (vids != pieces.length){
+            System.out.println("Error. Not " + vids + " files listed. Try Again.");
+            order = in.nextLine();
+            pieces = order.split("\\s*,\\s*");
+        }
+
+        String dash = "";
+        switch (ostype) {
+            case Windows:
+                dash = "\\";
+                break;
+            case MacOS:
+                dash = "/";
+                break;
+            case Linux:
+                break;
+            case Other:
+                break;
+        }
 
         for (int i = 0; i < file_array.length; i++) {
-            if (file_array[i].isFile()) {
-                String dash = "";
-                switch (ostype) {
-                    case Windows:
-                        dash = "\\";
-                        break;
-                    case MacOS:
-                        dash = "/";
-                        break;
-                    case Linux:
-                        break;
-                    case Other:
-                        break;
-                }
+
+            String ext = file_array[i].getName().substring(file_array[i].getName().indexOf(".") + 1);
+
+            if (file_array[i].isFile() && ext.equalsIgnoreCase("mp4")){
+
                 File my_file = new File(my_folder +
                         dash + file_array[i].getName());
                 String long_file_name = file_array[i].getName();
-
-                String new_file_name = date + pieces[i];
+                String new_file_name = date + "-" + pieces[i];
                 System.out.println("Changing " + long_file_name + " to " + new_file_name);
 
-                my_file.renameTo(new File(my_folder +
-                        dash + new_file_name + ".mp4"));
+//                my_file.renameTo(new File(my_folder +
+//                        dash + new_file_name + ".mp4"));
             }
         }
 
