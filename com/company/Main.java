@@ -1,5 +1,6 @@
 package com.company;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,28 +20,27 @@ public class Main {
 
         OsCheck.OSType ostype= OsCheck.getOperatingSystemType();
 
-        File[] file_array = my_folder.listFiles();
+        File[] file_array = my_folder.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".mp4");
+            }
+        });
+
         assert file_array != null;
+        //This sort is effective because the phone saves files by timestamp.
+        //LastModified Comparator is risky if certain files are tampered with beforehand
         Arrays.sort(file_array);
                 //, Comparator.comparingLong(File::lastModified));
 
-        int vids = 0;
-        for (int v = 0; v<file_array.length; v++){
-            String ext = file_array[v].getName().substring(file_array[v].getName().indexOf(".") + 1);
-            if (ext.equalsIgnoreCase("mp4")){
-                vids += 1;
-            }
-        }
-        System.out.println("There are " + vids + " files. What is the order of pieces [separted by commas]");
+        System.out.println("There are " + file_array.length + " files. What is the order of pieces [separated by commas]");
 
         String order;
         String[] pieces;
 
         order = in.nextLine();
         pieces = order.split("\\s*,\\s*");
-    System.out.println(pieces[0]);
-        while (vids != pieces.length){
-            System.out.println("Error. Not " + vids + " files listed. Try Again.");
+        while (file_array.length != pieces.length){
+            System.out.println("Error. Not " + file_array.length + " files listed. Try Again.");
             order = in.nextLine();
             pieces = order.split("\\s*,\\s*");
         }
