@@ -69,7 +69,7 @@ public class Main {
                         dash + file_array[i].getName());
                 String long_file_name = file_array[i].getName();
                 String new_file_name = date + "-" + pieces[i];
-                System.out.println("Changing " + long_file_name + " to " + new_file_name);
+                System.out.println("Renaming " + long_file_name + " to " + new_file_name);
 
 //                my_file.renameTo(new File(my_folder +
 //                        dash + new_file_name + ".mp4"));
