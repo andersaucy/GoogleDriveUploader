@@ -2,10 +2,7 @@ package com.company;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 //Runs Java on a folder directory in the command line
@@ -59,6 +56,8 @@ public class Main {
                 break;
         }
 
+        HashMap<File, File> renamed_files = new HashMap<File,File>();
+
         for (int i = 0; i < file_array.length; i++) {
 
             String ext = file_array[i].getName().substring(file_array[i].getName().indexOf(".") + 1);
@@ -69,13 +68,32 @@ public class Main {
                         dash + file_array[i].getName());
                 String long_file_name = file_array[i].getName();
                 String new_file_name = date + "-" + pieces[i];
+                File renamed_file = new File(my_folder +
+                        dash + new_file_name + ".mp4");
+
                 System.out.println("Renaming " + long_file_name + " to " + new_file_name);
 
-//                my_file.renameTo(new File(my_folder +
-//                        dash + new_file_name + ".mp4"));
+                renamed_files.put(my_file, renamed_file);
+               // my_file.renameTo();
             }
         }
+        System.out.println("Confirm? (Yes/No)");
 
+        String confirm = in.nextLine();
+        switch (confirm){
+            case "Yes":
+                Rename(renamed_files);
+                break;
+            case "No":
+                System.exit(0);
+                break;
+        }
+    }
+
+    public static void Rename(HashMap<File, File> old_to_new){
+        for (Map.Entry<File, File> entry : old_to_new.entrySet()){
+            entry.getKey().renameTo(entry.getValue());
+        }
         System.out.println("COMPLETE");
     }
 
