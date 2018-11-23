@@ -55,77 +55,46 @@ public class DriveQuickstart {
 
     public static void main(String... args) throws IOException, GeneralSecurityException {
     	
-    	
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-
-      //   Print the names and IDs for up to 10 files.
-//        FileList result = service.files().list()
-//                .setPageSize(10)
-//                .setFields("nextPageToken, files(id, name)")
-//                .execute();
-//        List<File> files = result.getFiles();
-//        if (files == null || files.isEmpty()) {
-//            System.out.println("No files found.");
-//        } else {
-//            System.out.println("Files:");
-//            for (File file : files) {
-//                System.out.printf("%s (%s)\n", file.getName(), file.getId());
-//            }
-//        }
         
-//        
-//        File fileMetadata = new File();
-//        fileMetadata.setName("photo.jpg");
-//        java.io.File filePath = new java.io.File("video.mp4");
-//        FileContent mediaContent = new FileContent("video/mp4", filePath);
-//        File file = service.files().create(fileMetadata, mediaContent)
-//            .setFields("id")
-//            .execute();
-//        System.out.println("File ID: " + file.getId());
-        
-        java.io.File my_folder = new java.io.File("/Users/Andersaucy/Desktop/Unique_Rehearsal");
+        java.io.File rehearsalFolder = new java.io.File("/Users/Andersaucy/Desktop/Unique_Rehearsal");
         Scanner in = new Scanner(System.in);
     	System.out.println("What is the date of the rehearsal? Format: [Day-MonthDate]");
-    	String date = in.nextLine();
+    	String rehearsalDate = in.nextLine();
     	
-    	OsCheck.OSType ostype= OsCheck.getOperatingSystemType();
+    	OsCheck.OSType osType= OsCheck.getOperatingSystemType();
 
-	    java.io.File[] file_array = my_folder.listFiles(new java.io.FilenameFilter() {
+	    java.io.File[] rehearsalArray = rehearsalFolder.listFiles(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File dir, String name) {
 	            return name.toLowerCase().endsWith(".mp4");
 	        }
 	    });
 
-	    assert file_array != null;
-	     //This sort is effective because the phone saves files by timestamp.
-	     //LastModified Comparator is risky if certain files are tampered with beforehand
-	    Arrays.sort(file_array);
-	             //, Comparator.comparingLong(File::lastModified));
+	    assert rehearsalArray != null;
+	     //This sort is effective because the phone saves files by time stamp, or filename
+	    Arrays.sort(rehearsalArray);
 	
-	    System.out.println("There are " + file_array.length + " files. What is the order of pieces [separated by commas]");
-	    String order;
+	    System.out.println("There are " + rehearsalArray.length + " files. What is the order of pieces [separated by commas]");
 	    String[] pieces;
 	
-	    order = in.nextLine();
-	    pieces = order.split("\\s*,\\s*");
-	    while (file_array.length != pieces.length){
-	        System.out.println("Error. Not " + file_array.length + " files listed. Try Again.");
-	        order = in.nextLine();
-	        pieces = order.split("\\s*,\\s*");
+	    pieces = in.nextLine().split("\\s*,\\s*");
+	    while (rehearsalArray.length != pieces.length){
+	        System.out.println("Error. Not " + rehearsalArray.length + " files listed. Try Again.");
+	        pieces = in.nextLine().split("\\s*,\\s*");
 	    }
 	
-	    String dash = "";
-	     
-	    switch (ostype) {
+	    //Determine paths based on Operating System
+	    String DASH = "";
+	    switch (osType) {
 	        case Windows:
-	            dash = "\\";
+	            DASH = "\\";
 	            break;
 	        case MacOS:
-	            dash = "/";
+	            DASH = "/";
 	            break;
 	        case Linux:
 	            break;
@@ -133,34 +102,33 @@ public class DriveQuickstart {
 	            break;
 	    }
 	    
-	    HashMap<java.io.File, java.io.File> renamed_files = new HashMap<java.io.File,java.io.File>();
+	    HashMap<java.io.File, java.io.File> oldToNew = new HashMap<java.io.File,java.io.File>();
 		
-	     for (int i = 0; i < file_array.length; i++) {
+	    for (int i = 0; i < rehearsalArray.length; i++) {
+	        String ext = rehearsalArray[i].getName().substring(rehearsalArray[i].getName().indexOf(".") + 1);
+	        if(rehearsalArray[i].isFile() && ext.equalsIgnoreCase("mp4")){
 	
-	         String ext = file_array[i].getName().substring(file_array[i].getName().indexOf(".") + 1);
-	
-	         if (file_array[i].isFile() && ext.equalsIgnoreCase("mp4")){
-	
-	            java.io.File my_file = new java.io.File(my_folder +
-	                     dash + file_array[i].getName());
-	            String long_file_name = file_array[i].getName();
-	            
-	            String new_file_name = date + "-" + pieces[i];
-	            java.io.File renamed_file = new java.io.File(my_folder +
-	                     dash + new_file_name + ".mp4");
-	
-	             System.out.println("Renaming " + long_file_name + " to " + new_file_name);
-	
-	             renamed_files.put(my_file, renamed_file);
+	        //Retrieve Old Filename
+	           java.io.File oldFile = new java.io.File(rehearsalFolder +
+	        		   DASH + rehearsalArray[i].getName());
+	           String oldFileName = rehearsalArray[i].getName();
+	        //Retrieve New Filename
+	           String newFileName = rehearsalDate + "-" + pieces[i];
+	           java.io.File newFile = new java.io.File(rehearsalFolder +
+	                   DASH + newFileName + ".mp4");
+	           System.out.println("Renaming " + oldFileName + " to " + newFileName);
+	        //Load for Renaming process
+	           oldToNew.put(oldFile, newFile);
 	         }
 	     }
-	     System.out.println("Confirm? (Yes/No)");
-	
+	     
+	     //Confirmation Prompt
+	     System.out.println("Confirm (This will begin the upload)? (Yes/No)");
 	     String confirm = in.nextLine().toUpperCase();
-	     List<java.io.File> ready_to_upload = null;
+	     List<java.io.File> uploadReady = null;
 	     switch (confirm){
 	         case "YES":
-	             ready_to_upload = Rename(renamed_files);
+	             uploadReady = Rename(oldToNew);
 	             break;
 	         case "NO":
 	        	 System.out.println("Try Again");
@@ -169,24 +137,24 @@ public class DriveQuickstart {
 	     }
 
     	in.close();
-    	//First upload FOLDER of date
-    	//This id is for Winter Training 2018
-        String folderId = "***REMOVED***";
+    	//Upload folder with date
+    	//The current parent folder is for Winter Training 2018
+        String seasonFolderId = "***REMOVED***";
     	File folderMetadata = new File();
-        folderMetadata.setName(date);
-        folderMetadata.setParents(Collections.singletonList(folderId));
+        folderMetadata.setName(rehearsalDate);
+        folderMetadata.setParents(Collections.singletonList(seasonFolderId));
         folderMetadata.setMimeType("application/vnd.google-apps.folder");
         File folder = service.files().create(folderMetadata)
             .setFields("id")
             .execute();
-        String date_folder_id = folder.getId();
-        System.out.println("Folder ID: " + date_folder_id);
+        String dateFolderId = folder.getId();
+        System.out.println("Folder ID: " + dateFolderId);
         
-        for (java.io.File vid : ready_to_upload) {
+        //Upload files within the newly created folder
+        for (java.io.File vid : uploadReady) {
 	        File fileMetadata = new File();
 	        fileMetadata.setName(vid.getName());
-	        fileMetadata.setParents(Collections.singletonList(date_folder_id));
-	        //java.io.File filePath = new java.io.File("/Users/Andersaucy/Desktop/Unique_Rehearsal/" + vid.getName());
+	        fileMetadata.setParents(Collections.singletonList(dateFolderId));
 	        FileContent mediaContent = new FileContent("video/mp4", vid.getAbsoluteFile());
 	        File file = service.files().create(fileMetadata, mediaContent)
 	            .setFields("id")
@@ -195,14 +163,14 @@ public class DriveQuickstart {
      	}
     }
 
-	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> old_to_new){
-		List<java.io.File> renamed_file_list = new ArrayList<java.io.File>();
-	    for (Map.Entry<java.io.File, java.io.File> entry : old_to_new.entrySet()){
+	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> oldToNew){
+		List<java.io.File> renamedFileList = new ArrayList<java.io.File>();
+	    for (Map.Entry<java.io.File, java.io.File> entry : oldToNew.entrySet()){
 	        entry.getKey().renameTo(entry.getValue());
-	        renamed_file_list.add(entry.getValue());
+	        renamedFileList.add(entry.getValue());
 	    }
-	    System.out.println("COMPLETE");
-		return renamed_file_list;
+	    System.out.println("RENAMING COMPLETE");
+		return renamedFileList;
 	}
 	
 	public static final class OsCheck {
@@ -215,7 +183,6 @@ public class DriveQuickstart {
 	
 	    // cached result of OS detection
 	    static OSType detectedOS;
-	
 	    /**
 	     * detect the operating system from the os.name System property and cache
 	     * the result
