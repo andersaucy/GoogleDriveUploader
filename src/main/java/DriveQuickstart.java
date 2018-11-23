@@ -157,10 +157,11 @@ public class DriveQuickstart {
 	     }
 	     System.out.println("Confirm? (Yes/No)");
 	
-	     String confirm = in.nextLine();
+	     String confirm = in.nextLine().toUpperCase();
+	     List<java.io.File> ready_to_upload = null;
 	     switch (confirm){
-	         case "Yes":
-	             Rename(renamed_files);
+	         case "YES":
+	             ready_to_upload = Rename(renamed_files);
 	             break;
 	         case "NO":
 	        	 System.out.println("Try Again");
