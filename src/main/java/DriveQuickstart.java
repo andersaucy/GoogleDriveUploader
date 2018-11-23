@@ -142,17 +142,17 @@ public class DriveQuickstart {
 	
 	         if (file_array[i].isFile() && ext.equalsIgnoreCase("mp4")){
 	
-	             java.io.File my_file = new java.io.File(my_folder +
+	            java.io.File my_file = new java.io.File(my_folder +
 	                     dash + file_array[i].getName());
-	             String long_file_name = file_array[i].getName();
-	             String new_file_name = date + "-" + pieces[i];
+	            String long_file_name = file_array[i].getName();
+	            
+	            String new_file_name = date + "-" + pieces[i];
 	            java.io.File renamed_file = new java.io.File(my_folder +
 	                     dash + new_file_name + ".mp4");
 	
 	             System.out.println("Renaming " + long_file_name + " to " + new_file_name);
 	
 	             renamed_files.put(my_file, renamed_file);
-	            // my_file.renameTo();
 	         }
 	     }
 	     System.out.println("Confirm? (Yes/No)");
@@ -162,26 +162,29 @@ public class DriveQuickstart {
 	         case "Yes":
 	             Rename(renamed_files);
 	             break;
-	         case "No":
+	         case "NO":
+	        	 System.out.println("Try Again");
 	             System.exit(0);
 	             break;
 	     }
 
     	in.close();
-    	
-        String folderId = "1QjB9832qpuko_Pm_6TXmrvbjiWJLkR4x";
-        File fileMetadata = new File();
-        fileMetadata.setName("test");
-        fileMetadata.setParents(Collections.singletonList(folderId));
-        fileMetadata.setMimeType("application/vnd.google-apps.folder");
-        File file = service.files().create(fileMetadata)
+    	//First upload FOLDER of date
+    	//This id is for Winter Training 2018
+        String folderId = "***REMOVED***";
+    	File folderMetadata = new File();
+        folderMetadata.setName(date);
+        folderMetadata.setParents(Collections.singletonList(folderId));
+        folderMetadata.setMimeType("application/vnd.google-apps.folder");
+        File folder = service.files().create(folderMetadata)
             .setFields("id")
             .execute();
         System.out.println("Folder ID: " + file.getId());
 
     }
 
-	public static void Rename(HashMap<java.io.File, java.io.File> old_to_new){
+	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> old_to_new){
+		List<java.io.File> renamed_file_list = new ArrayList<java.io.File>();
 	    for (Map.Entry<java.io.File, java.io.File> entry : old_to_new.entrySet()){
 	        entry.getKey().renameTo(entry.getValue());
 	    }
@@ -221,8 +224,4 @@ public class DriveQuickstart {
 	        return detectedOS;
 	    }
 	}
-  
-//    public static String Rename(){
-//    	System.out.println("HI");
-//    	File my_folder = new File("/Users/Andersaucy/Desktop/Unique_Rehearsal");
 }
