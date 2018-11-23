@@ -180,16 +180,30 @@ public class DriveQuickstart {
         File folder = service.files().create(folderMetadata)
             .setFields("id")
             .execute();
-        System.out.println("Folder ID: " + file.getId());
-
+        String date_folder_id = folder.getId();
+        System.out.println("Folder ID: " + date_folder_id);
+        
+        for (java.io.File vid : ready_to_upload) {
+	        File fileMetadata = new File();
+	        fileMetadata.setName(vid.getName());
+	        fileMetadata.setParents(Collections.singletonList(date_folder_id));
+	        //java.io.File filePath = new java.io.File("/Users/Andersaucy/Desktop/Unique_Rehearsal/" + vid.getName());
+	        FileContent mediaContent = new FileContent("video/mp4", vid.getAbsoluteFile());
+	        File file = service.files().create(fileMetadata, mediaContent)
+	            .setFields("id")
+	            .execute();
+	        System.out.println("File ID: " + file.getId());
+     	}
     }
 
 	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> old_to_new){
 		List<java.io.File> renamed_file_list = new ArrayList<java.io.File>();
 	    for (Map.Entry<java.io.File, java.io.File> entry : old_to_new.entrySet()){
 	        entry.getKey().renameTo(entry.getValue());
+	        renamed_file_list.add(entry.getValue());
 	    }
 	    System.out.println("COMPLETE");
+		return renamed_file_list;
 	}
 	
 	public static final class OsCheck {
