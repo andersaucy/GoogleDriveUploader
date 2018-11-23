@@ -1,0 +1,9 @@
+*.idea
+src/main/resources/credentials.json
+.gradle
+.idea/
+*.iml
+gradle.properties
+/local.properties
+/captures
+/build

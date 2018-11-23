@@ -6,6 +6,10 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 version = '1.0'
 
+run{
+    standardInput = System.in
+}
+
 repositories {
     mavenCentral()
 }
