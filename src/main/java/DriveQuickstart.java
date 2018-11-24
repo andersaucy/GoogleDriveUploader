@@ -127,14 +127,38 @@ public class DriveQuickstart {
 	    assert rehearsalArray != null;
 	     //This sort is effective because the phone saves files by time stamp, or filename
 	    Arrays.sort(rehearsalArray);
-	
-	    System.out.println("There are " + rehearsalArray.length + " files. What is the order of pieces [separated by commas]");
-	    String[] pieces;
-	
-	    pieces = in.nextLine().split("\\s*,\\s*");
-	    while (rehearsalArray.length != pieces.length){
-	        System.out.println("Error. Not " + rehearsalArray.length + " files listed. Try Again.");
-	        pieces = in.nextLine().split("\\s*,\\s*");
+	    
+	    String[] pieces = null;
+    	Set<String> titleSet = new HashSet<String>();
+    	
+	    while (true) {
+	    	System.out.println(String.format(
+	    			"There are %d files. What is the order of pieces [separated by commas]",
+	    			rehearsalArray.length));
+		    pieces = in.nextLine().split("\\s*,\\s*");
+		    
+	    	//Check if appropriate number of files
+	    	if (pieces.length != rehearsalArray.length) {
+	    		System.out.println(String.format(
+	    				"Error. Not %d files listed. Try Again.",
+	    				rehearsalArray.length));
+	    		continue;
+	    	}
+	    	
+		    //Check for duplicates to avoid file override
+		    for (String p : pieces) {
+		    	if (titleSet.add(p.toUpperCase()) == false) {
+		    		System.out.println(String.format(
+		    				"Error. There are duplicate filenames: %s\nTry Again."
+		    				,p.toUpperCase()));
+		    		titleSet.clear();
+		    		continue;
+		    	}	   
+		    }
+		    
+		    if (titleSet.size() == rehearsalArray.length) {
+		    	break;
+		    }
 	    }
 	
 	    //Determine format of absolute paths based on Operating System
@@ -176,46 +200,18 @@ public class DriveQuickstart {
 	     System.out.println("Confirm (This will begin the upload)? (Yes/No)");
 	     String confirm = in.nextLine().toUpperCase();
 	     List<java.io.File> uploadReady = null;
-	     switch (confirm){
-	         case "YES":
+	     switch (confirm.charAt(0)){
+	         case 'Y':
 	             uploadReady = Rename(oldToNew);
 	             break;
-	         case "NO":
-	        	 System.out.println("Try Again");
+	         case 'N':
+	        	 System.out.println("You responded No. Thank you, try again.");
 	             System.exit(0);
 	             break;
 	     }
-
     	in.close();
-    	//The current parent folder is for Winter Training 2018
-    	
-    	//Upload folder with date
-        String seasonFolderId = "***REMOVED***";
-        insertPermission(service, seasonFolderId);
-    	File folderMetadata = new File();
-        folderMetadata.setName(rehearsalDate);
-        folderMetadata.setParents(Collections.singletonList(seasonFolderId));
-        folderMetadata.setMimeType("application/vnd.google-apps.folder");
-        File folder = service.files().create(folderMetadata)
-            .setFields("id, webViewLink")
-            .execute();
-        insertPermission(service, folder.getId());
-        System.out.println("Folder ID: " + folder.getId());
-        
-        //Upload files within the newly created folder
-        for (java.io.File vid : uploadReady) {
-	        File fileMetadata = new File();
-	        fileMetadata.setName(vid.getName());
-	        fileMetadata.setParents(Collections.singletonList(folder.getId()));
-	        FileContent mediaContent = new FileContent("video/mp4", vid.getAbsoluteFile());
-	        File file = service.files().create(fileMetadata, mediaContent)
-	            .setFields("id")
-	            .execute();
-	        insertPermission(service, file.getId());
-	        System.out.println("File ID: " + file.getId());
-     	}
-        System.out.println(folder.getWebViewLink());
-    }
+    	return uploadReady;
+	}
 
 	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> oldToNew){
 		List<java.io.File> renamedFileList = new ArrayList<java.io.File>();
