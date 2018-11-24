@@ -27,6 +27,11 @@ public class DriveQuickstart {
     private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final String REHEARSAL_PATH = "/Users/Andersaucy/Desktop/Unique_Rehearsal";
+    
+	//The current parent folder is for Winter Training 2018
+    private static final String SEASON_FOLDER_ID = "***REMOVED***";
+    private static String rehearsalDate;
 
     /**
      * Global instance of the scopes required by this quick-start.
@@ -132,7 +137,7 @@ public class DriveQuickstart {
 	        pieces = in.nextLine().split("\\s*,\\s*");
 	    }
 	
-	    //Determine paths based on Operating System
+	    //Determine format of absolute paths based on Operating System
 	    String DASH = "";
 	    switch (osType) {
 	        case Windows:
@@ -158,10 +163,10 @@ public class DriveQuickstart {
 	        		   DASH + rehearsalArray[i].getName());
 	           String oldFileName = rehearsalArray[i].getName();
 	        //Retrieve New Filename
-	           String newFileName = rehearsalDate + "-" + pieces[i];
+	           String newFileName = String.format("%s-%s", rehearsalDate, pieces[i]);
 	           java.io.File newFile = new java.io.File(rehearsalFolder +
 	                   DASH + newFileName + ".mp4");
-	           System.out.println("Renaming " + oldFileName + " to " + newFileName);
+	           System.out.println(String.format("Renaming %s to %s", oldFileName, newFileName));
 	        //Load for Renaming process
 	           oldToNew.put(oldFile, newFile);
 	         }
