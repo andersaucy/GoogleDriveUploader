@@ -14,7 +14,9 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.client.http.FileContent;
 
-
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,12 +64,54 @@ public class DriveQuickstart {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
         
-        java.io.File rehearsalFolder = new java.io.File("/Users/Andersaucy/Desktop/Unique_Rehearsal");
+    	List<java.io.File> uploadReady = setUp();
+        
+    	//Upload folder with date
+        insertPermission(service, SEASON_FOLDER_ID);
+    	File folderMetadata = new File();
+        folderMetadata.setName(rehearsalDate);
+        folderMetadata.setParents(Collections.singletonList(SEASON_FOLDER_ID));
+        folderMetadata.setMimeType("application/vnd.google-apps.folder");
+        File folder = service.files().create(folderMetadata)
+            .setFields("id, webViewLink")
+            .execute();
+        insertPermission(service, folder.getId());
+        System.out.println(String.format("Folder ID for %s: %s", rehearsalDate, folder.getId()));
+        
+        //Upload files within the newly created folder
+        for (java.io.File vid : uploadReady) {
+	        File fileMetadata = new File();
+	        fileMetadata.setName(vid.getName());
+	        fileMetadata.setParents(Collections.singletonList(folder.getId()));
+	        FileContent mediaContent = new FileContent("video/mp4", vid.getAbsoluteFile());
+	        File file = service.files().create(fileMetadata, mediaContent)
+	            .setFields("id")
+	            .execute();
+	        insertPermission(service, file.getId());
+	        System.out.println(String.format("File ID for %s: %s", fileMetadata.getName(), file.getId()));
+     	}
+        
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Clipboard clipboard = toolkit.getSystemClipboard();
+		StringSelection strSel = new StringSelection(folder.getWebViewLink());
+		clipboard.setContents(strSel, null);
+        System.out.println(String.format("The following sharable link is copied to the clipboard:\n%s",
+        		folder.getWebViewLink()));
+        
+        return;
+    }
+    
+    /**
+     * Prompts user to provide rehearsal dates and song order and prepares a list of upload-ready files.
+     * 
+     * @return List of File objects that are ready to be uploaded onto Google Drive
+     */
+	private static List<java.io.File> setUp() {
+		OsCheck.OSType osType= OsCheck.getOperatingSystemType();
+		java.io.File rehearsalFolder = new java.io.File(REHEARSAL_PATH);
         Scanner in = new Scanner(System.in);
     	System.out.println("What is the date of the rehearsal? Format: [Day-MonthDate]");
-    	String rehearsalDate = in.nextLine();
-    	
-    	OsCheck.OSType osType= OsCheck.getOperatingSystemType();
+    	rehearsalDate = in.nextLine();
 
 	    java.io.File[] rehearsalArray = rehearsalFolder.listFiles(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File dir, String name) {
