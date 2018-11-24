@@ -11,6 +11,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.Permission;
 import com.google.api.client.http.FileContent;
 
 
@@ -137,30 +138,34 @@ public class DriveQuickstart {
 	     }
 
     	in.close();
-    	//Upload folder with date
     	//The current parent folder is for Winter Training 2018
+    	
+    	//Upload folder with date
         String seasonFolderId = "***REMOVED***";
+        insertPermission(service, seasonFolderId);
     	File folderMetadata = new File();
         folderMetadata.setName(rehearsalDate);
         folderMetadata.setParents(Collections.singletonList(seasonFolderId));
         folderMetadata.setMimeType("application/vnd.google-apps.folder");
         File folder = service.files().create(folderMetadata)
-            .setFields("id")
+            .setFields("id, webViewLink")
             .execute();
-        String dateFolderId = folder.getId();
-        System.out.println("Folder ID: " + dateFolderId);
+        insertPermission(service, folder.getId());
+        System.out.println("Folder ID: " + folder.getId());
         
         //Upload files within the newly created folder
         for (java.io.File vid : uploadReady) {
 	        File fileMetadata = new File();
 	        fileMetadata.setName(vid.getName());
-	        fileMetadata.setParents(Collections.singletonList(dateFolderId));
+	        fileMetadata.setParents(Collections.singletonList(folder.getId()));
 	        FileContent mediaContent = new FileContent("video/mp4", vid.getAbsoluteFile());
 	        File file = service.files().create(fileMetadata, mediaContent)
 	            .setFields("id")
 	            .execute();
+	        insertPermission(service, file.getId());
 	        System.out.println("File ID: " + file.getId());
      	}
+        System.out.println(folder.getWebViewLink());
     }
 
 	public static List<java.io.File> Rename(HashMap<java.io.File, java.io.File> oldToNew){
@@ -169,8 +174,22 @@ public class DriveQuickstart {
 	        entry.getKey().renameTo(entry.getValue());
 	        renamedFileList.add(entry.getValue());
 	    }
-	    System.out.println("RENAMING COMPLETE");
+	    System.out.println("RENAMING SUCCESSFUL. NOW UPLOADING");
 		return renamedFileList;
+	}
+	
+	private static Permission insertPermission(Drive service, String fileId) {
+		Permission newPermission = new Permission();
+
+		newPermission.setType("anyone");
+		newPermission.setRole("reader");
+		try {
+			return service.permissions().create(fileId, newPermission)
+					.execute();
+		} catch (IOException e) {
+			System.out.println("An error occurred: " + e);
+		}
+		return null;
 	}
 	
 	public static final class OsCheck {
