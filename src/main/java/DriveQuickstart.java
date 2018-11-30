@@ -28,7 +28,7 @@ public class DriveQuickstart {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final String REHEARSAL_PATH = "/Users/Andersaucy/Desktop/Unique_Rehearsal";
-    
+    private static final Scanner in = new Scanner(System.in);
 	//The current parent folder is for Winter Training 2018
     private static final String SEASON_FOLDER_ID = "***REMOVED***";
     private static String rehearsalDate;
@@ -70,7 +70,14 @@ public class DriveQuickstart {
                 .build();
         
     	List<java.io.File> uploadReady = setUp();
-        
+		 System.out.println("Confirm (This will begin the upload)? (Yes/No)");
+	     String confirm = in.nextLine().toUpperCase();
+	     if (confirm.charAt(0) == 'N') {
+	    	 System.out.println("You responded \'No.\' Thank you, program terminated.");
+	    	 in.close();
+	         System.exit(0);
+	     }
+	     
     	//Upload folder with date
         insertPermission(service, SEASON_FOLDER_ID);
     	File folderMetadata = new File();
@@ -102,7 +109,7 @@ public class DriveQuickstart {
 		clipboard.setContents(strSel, null);
         System.out.println(String.format("The following sharable link is copied to the clipboard:\n%s",
         		folder.getWebViewLink()));
-        
+        in.close();
         return;
     }
     
@@ -114,7 +121,7 @@ public class DriveQuickstart {
 	private static List<java.io.File> setUp() {
 		OsCheck.OSType osType= OsCheck.getOperatingSystemType();
 		java.io.File rehearsalFolder = new java.io.File(REHEARSAL_PATH);
-        Scanner in = new Scanner(System.in);
+        
     	System.out.println("What is the date of the rehearsal? Format: [Day-MonthDate]");
     	rehearsalDate = in.nextLine();
 
@@ -197,7 +204,7 @@ public class DriveQuickstart {
 	     }
 	     
 	     //Confirmation Prompt
-	     System.out.println("Confirm (This will begin the upload)? (Yes/No)");
+	     System.out.println("Confirm (This will rename the files)? (Yes/No)");
 	     String confirm = in.nextLine().toUpperCase();
 	     List<java.io.File> uploadReady = null;
 	     switch (confirm.charAt(0)){
@@ -205,11 +212,11 @@ public class DriveQuickstart {
 	             uploadReady = Rename(oldToNew);
 	             break;
 	         case 'N':
-	        	 System.out.println("You responded No. Thank you, try again.");
+	        	 System.out.println("You responded \'No.\' Program terminated.");
+	        	 in.close();
 	             System.exit(0);
 	             break;
 	     }
-    	in.close();
     	return uploadReady;
 	}
 
@@ -219,7 +226,7 @@ public class DriveQuickstart {
 	        entry.getKey().renameTo(entry.getValue());
 	        renamedFileList.add(entry.getValue());
 	    }
-	    System.out.println("RENAMING SUCCESSFUL. NOW UPLOADING");
+	    System.out.println("RENAMING SUCCESSFUL");
 		return renamedFileList;
 	}
 	
