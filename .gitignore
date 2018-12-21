@@ -7,3 +7,4 @@ gradle.properties
 /local.properties
 /captures
 /build
+/secret.txt
