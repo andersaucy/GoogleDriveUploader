@@ -30,11 +30,7 @@ public class DriveQuickstart {
     private static final String REHEARSAL_PATH = "/Users/Andersaucy/Desktop/Unique_Rehearsal";
     private static final Scanner in = new Scanner(System.in);
 	//The current parent folder is for Winter Training 2018
-<<<<<<< HEAD
-    private static final String SEASON_FOLDER_ID = "***REMOVED***";
-=======
-    private static final String SEASON_FOLDER_ID = "***REMOVED***";
->>>>>>> b3ae56264880d7ca8169eb67def78d5f449f293f
+    private static final String SEASON_FOLDER_ID = "1QjB9832qpuko_Pm_6TXmrvbjiWJLkR4x";
     private static String rehearsalDate;
 
     /**
