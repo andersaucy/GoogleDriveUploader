@@ -27,10 +27,10 @@ public class DriveQuickstart {
     private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String REHEARSAL_PATH = "/Users/Andersaucy/Desktop/Unique_Rehearsal";
+    private static final String REHEARSAL_PATH = CONSTANTS.DIRECTORY;
     private static final Scanner in = new Scanner(System.in);
 	//The current parent folder is for Winter Training 2018
-    private static final String SEASON_FOLDER_ID = "***REMOVED***";
+    private static final String SEASON_FOLDER_ID = CONSTANTS.GoogleDriveFolder_Unclepie;
     private static String rehearsalDate;
 
     /**
