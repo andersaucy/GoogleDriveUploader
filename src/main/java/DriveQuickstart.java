@@ -13,6 +13,8 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.client.http.FileContent;
+import com.xuggle.xuggler.IContainer;
+
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -125,12 +127,34 @@ public class DriveQuickstart {
     	System.out.println("What is the date of the rehearsal? Format: [Day-MonthDate]");
     	rehearsalDate = in.nextLine();
 
+    	System.out.println("Retreiving video metadata...");
 	    java.io.File[] rehearsalArray = rehearsalFolder.listFiles(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File dir, String name) {
 	            return name.toLowerCase().endsWith(".mp4");
 	        }
 	    });
-
+	    
+	    for (int i = 0; i<rehearsalArray.length; i++) {
+	    	String filePath = rehearsalArray[i].getAbsolutePath();
+	    	long sizeInBytes = rehearsalArray[i].length();
+	    	
+	    	System.out.println('\n' + rehearsalArray[i].getName());
+	    	IContainer container = IContainer.make();
+	    	int result = container.open(filePath, IContainer.Type.READ, null);
+	    	if (result<0){
+	    		throw new RuntimeException("Failed to open media file");
+	    	}
+	    	
+//	    	long millis = container.getDuration();
+//	    	long minutes = (millis / 1000) / 60;
+//	    	int seconds = (int)((millis / 1000) % 60);
+	    	
+	    //	long sizeInBytes = container.getFileSize();
+	    	long sizeInMb = sizeInBytes / (1024 * 1024);
+//	    	System.out.println(String.format("Duration: %d:%d",minutes,seconds));
+	    	System.out.println(String.format("Estimated File Size: %dMb",sizeInMb));
+	    	
+	    }
 	    assert rehearsalArray != null;
 	     //This sort is effective because the phone saves files by time stamp, or filename
 	    Arrays.sort(rehearsalArray);
@@ -168,7 +192,7 @@ public class DriveQuickstart {
 		    }
 	    }
 	
-	    //Determine format of absolute paths based on Operating System
+	    //Determine format of absolute paths based on Operating System.
 	    String DASH = "";
 	    switch (osType) {
 	        case Windows:
