@@ -134,11 +134,15 @@ public class DriveQuickstart {
 	        }
 	    });
 	    
-	    for (int i = 0; i<rehearsalArray.length; i++) {
-	    	String filePath = rehearsalArray[i].getAbsolutePath();
-	    	long sizeInBytes = rehearsalArray[i].length();
+	    assert rehearsalArray != null;
+	     //This sort is effective because the phone saves files by time stamp, or filename
+	    Arrays.sort(rehearsalArray);
+	    
+	    for (java.io.File f : rehearsalArray) {
+	    	String filePath = f.getAbsolutePath();
+	    	long sizeInBytes = f.length();
 	    	
-	    	System.out.println('\n' + rehearsalArray[i].getName());
+	    	System.out.println('\n' + f.getName());
 	    	IContainer container = IContainer.make();
 	    	int result = container.open(filePath, IContainer.Type.READ, null);
 	    	if (result<0){
@@ -155,9 +159,6 @@ public class DriveQuickstart {
 	    	System.out.println(String.format("Estimated File Size: %dMb",sizeInMb));
 	    	
 	    }
-	    assert rehearsalArray != null;
-	     //This sort is effective because the phone saves files by time stamp, or filename
-	    Arrays.sort(rehearsalArray);
 	    
 	    String[] pieces = null;
     	Set<String> titleSet = new HashSet<String>();
